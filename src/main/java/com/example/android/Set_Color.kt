@@ -40,10 +40,18 @@ class Set_Color : AppCompatActivity() {
                         Request.Method.PATCH, "${App.mainIp}set/color/PATCH/1",
                         JSONObject().put("cid", 1).put("color", color1),
                         Response.Listener { response ->
-                            if(response.has("error"))
-                                Toast.makeText(this, response["error"].toString(), Toast.LENGTH_SHORT).show()
+                            if(response.has("error")) {
+                                var s:String ?= null
+                                if(response.has("color"))
+                                    s = response["color"].toString()
+                                App.errormessage(
+                                    this,
+                                    Integer.parseInt(response["error"].toString()), "PATCH",
+                                    Integer.parseInt(response["cid"].toString()), s
+                                )
+                            }
                             else
-                                Toast.makeText(this, response["data"].toString(), Toast.LENGTH_SHORT).show()
+                                Toast.makeText(this, "completely PATCH ${response["cid"]} : ${response["color"]}", Toast.LENGTH_LONG).show()
                         },
                         Response.ErrorListener {
                             Toast.makeText(this, " That didn't work!", Toast.LENGTH_SHORT).show()

@@ -19,19 +19,61 @@ class Set_Input : AppCompatActivity() {
         setContentView(R.layout.input)
 
         insert_btn.setOnClickListener {
-            val tid:Int = Integer.parseInt(tid_txt.text.toString())
-            var jsonrequest = JSONObject().put("tid", tid).put("txt",text_txt.text.toString())
-            requestText(jsonrequest, Request.Method.PUT, "PUT")
+            val tid = tid_txt.text.toString()
+            val text = text_txt.text.toString()
+            if(tid == "" || text == "") {
+                Toast.makeText(this,"Have to fill in all text",Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+            else if(tid.toIntOrNull() !is Int) {
+                Toast.makeText(this,"tid have to be Integer type",Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+            requestText(
+                JSONObject()
+                    .put("tid", Integer.parseInt(tid))
+                    .put("txt",text),
+                Request.Method.PUT,
+                "PUT"
+            )
         }
         update_btn.setOnClickListener {
-            val tid:Int = Integer.parseInt(tid_txt.text.toString())
-            var jsonrequest = JSONObject().put("tid", tid).put("txt",text_txt.text.toString())
-            requestText(jsonrequest, Request.Method.PATCH, "PATCH")
+            val tid = tid_txt.text.toString()
+            val text = text_txt.text.toString()
+            if(tid == "" || text == "") {
+                Toast.makeText(this,"Have to fill in all text",Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+            else if(tid.toIntOrNull() !is Int) {
+                Toast.makeText(this,"tid have to be Integer type",Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+            requestText(
+                JSONObject()
+                    .put("tid", Integer.parseInt(tid))
+                    .put("txt",text),
+                Request.Method.PATCH,
+                "PATCH"
+            )
         }
         delete_btn.setOnClickListener {
-            val tid:Int = Integer.parseInt(tid_txt.text.toString())
-            var jsonrequest = JSONObject().put("tid", tid).put("txt",text_txt.text.toString())
-            requestText(jsonrequest, Request.Method.DELETE, "DELETE")
+            val tid = tid_txt.text.toString()
+            val text = text_txt.text.toString()
+            if(tid == "" || txt == "") {
+                Toast.makeText(this,"Have to fill in all text",Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+            else if(tid.toIntOrNull() !is Int) {
+                Toast.makeText(this,"tid have to be Integer type",Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+            requestText(
+                JSONObject()
+                    .put("tid", Integer.parseInt(tid))
+                    .put("txt",text),
+                Request.Method.DELETE,
+                "DELETE"
+            )
         }
 
         print_btn.setOnClickListener {
@@ -48,13 +90,21 @@ class Set_Input : AppCompatActivity() {
 
     fun requestText(json: JSONObject, method: Int, url:String){
         MySingleton.getInstance(this).addToRequestQueue(
-            JsonObjectRequest(method, "${App.mainIp}/set/text/${url}/${json["tid"]}",
+            JsonObjectRequest(method, "${App.mainIp}set/text/${url}/${json["tid"]}",
                 json,
                 Response.Listener{ response ->
-                    if(response.has("data"))
-                        Toast.makeText(this, response["data"].toString(), Toast.LENGTH_LONG).show()
+                    if(response.has("error")) {
+                        var s:String ?= null
+                        if(response.has("txt"))
+                            s = response["txt"].toString()
+                        App.errormessage(
+                            this,
+                            Integer.parseInt(response["error"].toString()), url,
+                            Integer.parseInt(response["tid"].toString()), s
+                        )
+                    }
                     else
-                        Toast.makeText(this, response["error"].toString(), Toast.LENGTH_LONG).show()
+                        Toast.makeText(this, "completely $url ${response["tid"]} : ${response["txt"]}", Toast.LENGTH_LONG).show()
                 },
                 Response.ErrorListener {
                         error ->  Toast.makeText(this, error.toString(),Toast.LENGTH_LONG).show()

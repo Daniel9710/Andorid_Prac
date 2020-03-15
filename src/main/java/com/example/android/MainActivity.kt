@@ -24,10 +24,18 @@ class MainActivity : AppCompatActivity() {
                     Request.Method.GET, "${App.mainIp}set/color/GET/1",
                     JSONObject(),
                     Response.Listener { response ->
-                        if(response.has("error"))
-                            Toast.makeText(this, response["error"].toString(), Toast.LENGTH_SHORT).show()
+                        if(response.has("error")) {
+                            var s:String ?= null
+                            if(response.has("color"))
+                                s = response["color"].toString()
+                            App.errormessage(
+                                this,
+                                Integer.parseInt(response["error"].toString()), "GET",
+                                Integer.parseInt(response["cid"].toString()), s
+                            )
+                        }
                         else
-                            textView.setTextColor(Color.parseColor(response["color"].toString()))
+                            Toast.makeText(this, "completely GET ${response["cid"]} : ${response["color"]}", Toast.LENGTH_LONG).show()
                     },
                     Response.ErrorListener {
                         Toast.makeText(this, " That didn't work!", Toast.LENGTH_SHORT).show()
